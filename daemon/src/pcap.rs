@@ -77,11 +77,13 @@ where
         for maybe_msg in container.into_messages() {
             match maybe_msg {
                 Ok(msg) => {
-                    let maybe_gsmtap_msg = gsmtap_parser::parse(msg)?;
-                    if let Some((timestamp, gsmtap_msg)) = maybe_gsmtap_msg {
-                        pcap_writer
-                            .write_gsmtap_message(gsmtap_msg, timestamp)
-                            .await?;
+                    let maybe_gsmtap_msg_result = gsmtap_parser::parse(msg);
+                    if let Ok(maybe_gsmtap_msg) = maybe_gsmtap_msg_result {
+                        if let Some((timestamp, gsmtap_msg)) = maybe_gsmtap_msg {
+                            pcap_writer
+                                .write_gsmtap_message(gsmtap_msg, timestamp)
+                                .await?;
+                        }
                     }
                 }
                 Err(e) => error!("error parsing message: {e:?}"),
